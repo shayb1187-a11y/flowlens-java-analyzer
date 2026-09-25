@@ -18,7 +18,7 @@ import java.util.List;
 /** Testable application boundary: dependencies and output streams are supplied by the caller. */
 public final class Cli {
     private static final String USAGE = """
-            FlowLens 1.0.0
+            FlowLens 1.0.1
             Usage:
               java -jar build/flowlens.jar check [options] FILE.sjava [FILE.sjava ...]
               java -jar build/flowlens.jar gui

@@ -36,9 +36,13 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 
-/** Presentation adapter. Expensive analysis runs off the Swing event thread. */
+/**
+ * Presentation adapter. Expensive analysis runs off the Swing event thread.
+ * Java serialization of this live UI is unsupported; save source or export JSON instead.
+ */
 public final class WorkbenchPanel extends JPanel {
     private static final long serialVersionUID = 1L;
+    @SuppressWarnings("serial") // Runtime service, not persisted UI state.
     private final Analyzer analyzer = new Analyzer();
     private final JTextArea editor = new JTextArea();
     private final JLabel status = new JLabel("Ready — choose an example and select Analyze");
@@ -52,6 +56,7 @@ public final class WorkbenchPanel extends JPanel {
     };
     private String sourceName = "valid.sjava";
     private long revision;
+    @SuppressWarnings("serial") // Results are exported through JsonReportFormatter.
     private AnalysisResult currentResult;
 
     public WorkbenchPanel() {
@@ -213,6 +218,7 @@ public final class WorkbenchPanel extends JPanel {
 
     private static final class DiagnosticTable extends AbstractTableModel {
         private static final long serialVersionUID = 1L;
+        @SuppressWarnings("serial") // View data; this table model is never serialized.
         private List<Diagnostic> rows = List.of();
         private final String[] columns = {"Severity", "Code", "Position", "Message"};
         void set(List<Diagnostic> rows) { this.rows = List.copyOf(rows); fireTableDataChanged(); }
