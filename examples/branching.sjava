@@ -1,0 +1,27 @@
+// Both continuing paths initialize retries, so its use is safe.
+void inspect(boolean enabled) {
+    int retries;
+    if (enabled) {
+        retries = 3;
+    } else {
+        retries = 1;
+    }
+    report(retries);
+    return;
+}
+
+// A returning branch does not reach the later use of amount.
+void choose(boolean enabled) {
+    int amount;
+    if (enabled) {
+        return;
+    } else {
+        amount = 2;
+    }
+    report(amount);
+    return;
+}
+
+void report(double value) {
+    return;
+}

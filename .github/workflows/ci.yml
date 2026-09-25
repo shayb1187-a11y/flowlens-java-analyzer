@@ -1,0 +1,41 @@
+name: Java verification
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: ${{ matrix.os }} / JDK ${{ matrix.java }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        java: ['17', '21']
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+      - name: Compile, test, and package
+        run: java Build.java test
+      - name: Smoke test executable JAR
+        run: java -jar build/flowlens.jar check examples/valid.sjava examples/branching.sjava
+      - name: Upload executable and desktop preview
+        uses: actions/upload-artifact@v7
+        with:
+          name: flowlens-${{ matrix.os }}-jdk-${{ matrix.java }}
+          path: |
+            build/flowlens.jar
+            build/workbench-preview.png
+          if-no-files-found: error
+          retention-days: 14

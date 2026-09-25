@@ -1,0 +1,18 @@
+// Forward calls, final parameters, widening, quoting, and nested scopes.
+final int maxRetries = 3;
+String label = "FlowLens, demo /* this is text */";
+
+void inspect(final int attempts, boolean enabled) {
+    double budget = attempts;
+    boolean ready;
+    ready = true;
+    if (ready && enabled) {
+        publish(label, budget);
+    }
+    return;
+}
+
+void publish(String message, double amount) {
+    char marker = '\n';
+    return;
+}

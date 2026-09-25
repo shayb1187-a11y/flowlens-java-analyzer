@@ -1,0 +1,17 @@
+// Valid source can still receive maintainability warnings.
+void Inspect_Source(boolean a, boolean b, boolean c) {
+    if (a && b || c) {
+        if (b) {
+            while (c) {
+                if (a) {
+                    return;
+                }
+            }
+        }
+    }
+    if (a) {
+        return;
+    }
+    return;
+    int unreachable = 1;
+}

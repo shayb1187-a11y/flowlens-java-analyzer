@@ -1,0 +1,14 @@
+// Independent errors are reported together, with source positions.
+void inspect(boolean enabled) {
+    int retries;
+    if (enabled) {
+        retries = 3;
+    }
+    double budget = retries;
+    final String label = "locked";
+    label = "changed";
+    int self = self;
+    int retries = 4;
+    missingMethod();
+    return;
+}

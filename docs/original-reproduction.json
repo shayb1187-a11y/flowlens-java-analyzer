@@ -1,0 +1,58 @@
+[
+  {
+    "case": "boolean-assignment",
+    "source": "void f() {\nboolean b;\nb = true;\nif (b) {\nreturn;\n}\nreturn;\n}\n",
+    "stdout": "1\n",
+    "stderr": "Error: Uninitialized in condition: b\nError: Invalid block\n",
+    "exit": 0
+  },
+  {
+    "case": "final-parameter",
+    "source": "void f(final int value) {\nint copy = value;\nreturn;\n}\n",
+    "stdout": "0\n",
+    "stderr": "",
+    "exit": 0
+  },
+  {
+    "case": "comma-in-string",
+    "source": "void f() {\nString s = \"hello, world\";\nreturn;\n}\n",
+    "stdout": "1\n",
+    "stderr": "Error: Unrecognized statement\nError: Invalid statement: String s = \"hello, world\";\n",
+    "exit": 0
+  },
+  {
+    "case": "comment-in-string",
+    "source": "void f() {\nString s = \"/* literal */\";\nreturn;\n}\n",
+    "stdout": "1\n",
+    "stderr": "Error: Block comments not allowed\n",
+    "exit": 0
+  },
+  {
+    "case": "multiple-assignment",
+    "source": "void f() {\nint x, y;\nx = 1, y = 2;\nreturn;\n}\n",
+    "stdout": "1\n",
+    "stderr": "Error: Type mismatch for x\nError: Invalid statement: x = 1, y = 2;\n",
+    "exit": 0
+  },
+  {
+    "case": "self-initialization",
+    "source": "void f() {\nint x = x;\nreturn;\n}\n",
+    "stdout": "0\n",
+    "stderr": "",
+    "exit": 0
+  },
+  {
+    "case": "duplicate-after-assign",
+    "source": "void f() {\nint x = 1;\nx = 2;\nint x = 3;\nreturn;\n}\n",
+    "stdout": "0\n",
+    "stderr": "",
+    "exit": 0
+  },
+  {
+    "case": "local-final-reassignment",
+    "source": "void f() {\nfinal int x = 1;\nx = 2;\nreturn;\n}\n",
+    "stdout": "0\n",
+    "stderr": "",
+    "exit": 0
+  }
+]

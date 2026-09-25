@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "results": [
+    {
+      "source": "examples/errors.sjava",
+      "valid": false,
+      "diagnostics": [
+        {
+          "severity": "error",
+          "code": "E103",
+          "message": "Variable 'retries' may be uninitialized.",
+          "line": 7,
+          "column": 21,
+          "offset": 183
+        },
+        {
+          "severity": "error",
+          "code": "E106",
+          "message": "Cannot reassign final variable 'label'.",
+          "line": 9,
+          "column": 5,
+          "offset": 231
+        },
+        {
+          "severity": "error",
+          "code": "E103",
+          "message": "Variable 'self' may be uninitialized.",
+          "line": 10,
+          "column": 16,
+          "offset": 265
+        },
+        {
+          "severity": "error",
+          "code": "E101",
+          "message": "Duplicate variable 'retries' in this scope.",
+          "line": 11,
+          "column": 9,
+          "offset": 279
+        },
+        {
+          "severity": "error",
+          "code": "E107",
+          "message": "Unknown method 'missingMethod'.",
+          "line": 12,
+          "column": 5,
+          "offset": 296
+        }
+      ],
+      "methods": [
+        {
+          "name": "inspect",
+          "line": 2,
+          "statements": 10,
+          "cyclomaticComplexity": 2,
+          "maxNesting": 1
+        }
+      ]
+    }
+  ]
+}

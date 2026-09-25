@@ -1,0 +1,116 @@
+PASS commas and equals inside quoted values
+PASS comment markers inside quoted literals
+PASS inline, indented, and multiline comments
+PASS escaped quote and backslash
+PASS unterminated string
+PASS unterminated comment
+PASS empty char rejected
+PASS multi-character char rejected
+PASS unknown escape rejected
+PASS numeric literal forms
+PASS malformed numeric literal
+PASS arithmetic is outside the language
+PASS single logical operator rejected
+PASS keyword cannot be variable name
+PASS single underscore rejected
+PASS double underscore prefix rejected
+PASS underscore plus digit accepted for variables
+PASS method must start with a letter
+PASS multiple statements per line
+PASS multiline declarations and calls
+PASS CRLF source positions
+PASS bare CR source positions
+PASS logical precedence and parentheses
+PASS trailing comma rejected
+PASS missing closing brace
+PASS extra closing brace
+PASS nested method rejected
+PASS global call rejected
+PASS global return rejected
+PASS syntax errors recover at statement boundaries
+PASS expression recursion guard
+PASS block recursion guard
+PASS source length guard
+PASS AST collections are immutable
+PASS 500 seeded malformed token streams never crash
+PASS empty input is valid
+PASS uninitialized declarations are allowed
+PASS boolean assignment establishes initialization
+PASS self initialization rejected
+PASS redeclare after assignment rejected
+PASS comma assignments processed left to right
+PASS multi declaration sees earlier initializer
+PASS multi declaration cannot read later binding
+PASS assignment to undeclared variable
+PASS use before initialization
+PASS final declaration needs initializer
+PASS final assignment forbidden
+PASS final assignment forbidden across scope
+PASS final parameter cannot be reassigned
+PASS parameters are initialized
+PASS duplicate parameters rejected
+PASS parameters share method scope
+PASS nested scope may shadow
+PASS shadow initializer resolves to own declaration
+PASS local cannot escape block
+PASS shadow assignments do not initialize outer
+PASS if without else does not definitely assign
+PASS loop may execute zero times
+PASS assignments visible within a branch
+PASS both branches establish assignment
+PASS one incomplete branch fails merge
+PASS returning branch excluded from merge
+PASS returning else excluded from merge
+PASS nested complete branches merge
+PASS existing assignment survives branch
+PASS global initialization isolated between methods
+PASS global assignment in same method is visible
+PASS global initialization completes before method analysis
+PASS globals initialized in source order
+PASS failed initializer does not initialize variable
+PASS forward calls and recursion
+PASS unknown method rejected
+PASS wrong argument count rejected
+PASS wrong argument type rejected
+PASS uninitialized call argument
+PASS duplicate methods rejected
+PASS type widening allowed
+PASS narrowing rejected
+PASS boolean cannot widen to number
+PASS char is distinct from String
+PASS numeric conditions allowed
+PASS String condition rejected
+PASS char condition rejected
+PASS logical operators validate both sides
+PASS missing return diagnosed
+PASS conditional return alone insufficient
+PASS both returning branches satisfy method
+PASS return in while alone insufficient
+PASS return cannot carry a value
+PASS multiple independent semantic errors
+PASS three built-in lint rules
+PASS lint can be disabled without affecting validation
+PASS custom rule plugs in without changing analyzer
+PASS complexity thresholds are configurable
+PASS metrics count decisions, logical operators, statements and depth
+PASS unreachable warning after two returning branches
+PASS result collections are immutable
+PASS same analyzer has no state leakage between runs
+PASS 100 concurrent analyses share one facade safely
+PASS core never writes to console
+PASS file adapter reads UTF-8 with optional BOM
+PASS file adapter rejects malformed UTF-8
+PASS file adapter rejects unsupported extension
+PASS CLI processes multiple files independently
+PASS CLI I/O failure takes precedence over source failure
+PASS CLI warnings gate and no-lint switch
+PASS CLI rejects malformed invocation
+PASS CLI end-of-options marker
+PASS JSON schema empty report golden output
+PASS JSON escapes quotes, slashes, controls and surrogates
+PASS CLI JSON is clean stdout
+PASS real CLI process exit codes
+PASS Swing analysis, diagnostic navigation, stale-result rejection and rendering
+
+113 tests passed; 0 failed.
+Built build/flowlens.jar
