@@ -6,6 +6,7 @@ import dev.sjavainspector.lint.MethodNamingRule;
 import dev.sjavainspector.lint.MetricsCollector;
 import dev.sjavainspector.lint.UnreachableCodeRule;
 import dev.sjavainspector.semantic.SemanticAnalyzer;
+import dev.sjavainspector.semantic.SemanticModel;
 import dev.sjavainspector.syntax.Ast;
 import dev.sjavainspector.syntax.Lexer;
 import dev.sjavainspector.syntax.Parser;
@@ -13,6 +14,7 @@ import dev.sjavainspector.syntax.Token;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 /** Facade for CLI, desktop, and embedded use. No I/O, output, or shared mutable analysis state. */
 public final class Analyzer {
@@ -31,14 +33,18 @@ public final class Analyzer {
         if (!diagnostics.isEmpty()) return result(source, diagnostics, List.of());
         Ast.Program program = new Parser(tokens, diagnostics).parse();
         if (!diagnostics.isEmpty()) return result(source, diagnostics, List.of());
-        program.accept(new SemanticAnalyzer(diagnostics));
+        SemanticModel model = new SemanticAnalyzer(diagnostics).analyze(source, program);
         List<AnalysisResult.MethodMetrics> metrics = new MetricsCollector().collect(program);
         for (AnalysisRule rule : rules) diagnostics.addAll(rule.inspect(program, metrics));
-        return result(source, diagnostics, metrics);
+        return result(source, diagnostics, metrics, Optional.of(model));
     }
     private AnalysisResult result(SourceUnit source, List<Diagnostic> diagnostics, List<AnalysisResult.MethodMetrics> metrics) {
+        return result(source, diagnostics, metrics, Optional.empty());
+    }
+    private AnalysisResult result(SourceUnit source, List<Diagnostic> diagnostics,
+                                  List<AnalysisResult.MethodMetrics> metrics, Optional<SemanticModel> model) {
         diagnostics.sort(Comparator.comparingInt((Diagnostic d) -> d.position().offset())
                 .thenComparing(Diagnostic::severity).thenComparing(Diagnostic::code));
-        return new AnalysisResult(source.name(), diagnostics, metrics);
+        return new AnalysisResult(source.name(), diagnostics, metrics, model);
     }
 }
