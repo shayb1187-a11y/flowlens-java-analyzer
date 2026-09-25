@@ -4,13 +4,17 @@ Portfolio verification date: **2026-09-25**.
 
 ## Observed local result
 
-**113 named tests passed, zero failed**, using Temurin OpenJDK **17.0.19** on Windows. Both production and test sources compile with `--release 17 -Xlint:all -Werror`.
+**113 named JUnit 5 tests passed, zero failed**, using Temurin OpenJDK **17.0.19** and Apache Maven **3.9.16** (via the Maven Wrapper) on Windows. 112 are unit tests run by Surefire. One integration test, run by Failsafe, launches the packaged `target/flowlens.jar` in a separate JVM. Both production and test sources compile with `--release 17 -Xlint:all -Werror`.
 
-The complete runner output is included in [verification.log](verification.log). These are explicitly executed tests, not a projected test count. Two named tests additionally exercise 500 seeded malformed token streams and 100 parallel analyses, respectively; those individual iterations are not counted as extra named tests.
+**JaCoCo coverage from the unit tests: 92.4% of lines (755/817) and 83.6% of branches (403/482).** The build fails below 90% line or 80% branch coverage (`coverage.*.minimum` in `pom.xml`). Coverage by package ranges from 76% (`ui`) and 78% (`cli`, whose `Main` entry point runs only in the integration test's child JVM, which is not instrumented) up to 100% (`io`, `lint`).
+
+[verification.log](verification.log) contains the Maven test summary, every executed test by display name, and the coverage totals. These are explicitly executed tests, not a projected test count. Two named tests additionally exercise 500 seeded malformed token streams and 100 parallel analyses, respectively; those individual iterations are not counted as extra named tests.
 
 ```sh
-java Build.java test
+./mvnw verify        # Windows: mvnw.cmd verify
 ```
+
+The HTML coverage report is written to `target/site/jacoco/index.html`. Test classes mirror the main packages (`syntax/FrontendTest`, `semantic/SemanticAnalyzerTest`, `cli/CliTest`, …). Each test's `@DisplayName` states the behavior it checks.
 
 ## Coverage of behavior
 
@@ -31,7 +35,9 @@ The parser-recovery test initially caught a bug in the new implementation: when 
 
 ## Additional delivered-artifact checks
 
-The built executable JAR was invoked directly against valid, invalid, missing-file, and warning-gated examples. Exit codes were 0, 1, 2, and 1, respectively. JSON output and the test-generated escaping fixture were parsed independently with PowerShell's JSON parser.
+The built executable JAR was invoked directly against valid, invalid, missing-file, and warning-gated examples. Exit codes were 0, 1, 2, and 1, respectively. The test-generated escaping fixture is written to `target/json-escaping.json` for independent parsing.
+
+The build gates were checked in the failing direction too. A deliberately broken assertion made `./mvnw verify` fail in the test phase. Raising the line-coverage minimum to 99% made it fail at `jacoco:check`. Both changes were reverted.
 
 The screenshot in the README is rendered from the actual Swing component with the errors example after analysis, not a conceptual mockup. Its headless appearance differs from native desktop look-and-feel themes.
 
@@ -41,12 +47,12 @@ The screenshot in the README is rendered from the actual Swing component with th
 - For hosted Windows/Linux and JDK 17/21 results, see [GitHub Actions](https://github.com/shayb1187-a11y/flowlens-java-analyzer/actions/workflows/ci.yml).
 - Exact compatibility with an unavailable university specification or hidden grader.
 - Full Java language conformance, runtime value evaluation, security-service hardening, or production workloads.
-- A code-coverage percentage or performance benchmark. No such number is claimed.
+- A performance benchmark. No such number is claimed. The coverage percentage shows which code the tests executed, not that the code is correct.
 
 The malformed-token test is a deterministic regression exercise, not a proof of parser robustness for every possible input.
 
 ## Continuous integration
 
-`.github/workflows/ci.yml` compiles and executes this same test suite for pull requests, pushes, and manual runs. It uses read-only repository permissions, does not persist checkout credentials, and uploads the generated JAR and headless workbench image. The artifact step requires files to exist.
+`.github/workflows/ci.yml` runs `./mvnw -B verify` for pull requests, pushes, and manual runs on Ubuntu and Windows with JDK 17 and 21. That single command covers compilation, unit tests, packaging, the JAR integration test, and the coverage gate. It uses read-only repository permissions, does not persist checkout credentials, caches the Maven repository, and uploads the generated JAR and headless workbench image; the artifact step requires the files to exist. On failure it uploads the Surefire/Failsafe reports. The Ubuntu/JDK 21 leg writes line and branch coverage to the job summary and uploads the JaCoCo HTML report as the `coverage-report` artifact.
 
-Action usage was checked against the official repositories: [checkout](https://github.com/actions/checkout), [setup-java](https://github.com/actions/setup-java), and [upload-artifact](https://github.com/actions/upload-artifact). Major tags are explicit, and Dependabot configuration is included for Actions updates. This does not substitute for running the workflow in the target repository.
+Action usage was checked against the official repositories: [checkout](https://github.com/actions/checkout), [setup-java](https://github.com/actions/setup-java), and [upload-artifact](https://github.com/actions/upload-artifact). Major tags are explicit, and Dependabot is configured for both Actions and Maven dependency updates. This does not substitute for running the workflow in the target repository.

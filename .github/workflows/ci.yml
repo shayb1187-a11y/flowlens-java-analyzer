@@ -12,12 +12,15 @@ jobs:
   verify:
     name: ${{ matrix.os }} / JDK ${{ matrix.java }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 10
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
         java: ['17', '21']
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v7
         with:
@@ -26,16 +29,44 @@ jobs:
         with:
           distribution: temurin
           java-version: ${{ matrix.java }}
-      - name: Compile, test, and package
-        run: java Build.java test
-      - name: Smoke test executable JAR
-        run: java -jar build/flowlens.jar check examples/valid.sjava examples/branching.sjava
+          cache: maven
+      - name: Compile, test, package, integration-test, and check coverage
+        run: ./mvnw -B -ntp verify
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-reports-${{ matrix.os }}-jdk-${{ matrix.java }}
+          path: |
+            target/surefire-reports
+            target/failsafe-reports
+          retention-days: 14
+      - name: Publish coverage summary
+        if: matrix.os == 'ubuntu-latest' && matrix.java == '21'
+        run: |
+          awk -F, 'NR > 1 { lm += $8; lc += $9; bm += $6; bc += $7 }
+            END {
+              print "### Coverage (JaCoCo)"
+              print ""
+              print "| Counter | Covered | Total | Ratio |"
+              print "| --- | ---: | ---: | ---: |"
+              printf "| Lines | %d | %d | %.1f%% |\n", lc, lc + lm, 100 * lc / (lc + lm)
+              printf "| Branches | %d | %d | %.1f%% |\n", bc, bc + bm, 100 * bc / (bc + bm)
+            }' target/site/jacoco/jacoco.csv >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload coverage report
+        if: matrix.os == 'ubuntu-latest' && matrix.java == '21'
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-report
+          path: target/site/jacoco
+          if-no-files-found: error
+          retention-days: 14
       - name: Upload executable and desktop preview
         uses: actions/upload-artifact@v7
         with:
           name: flowlens-${{ matrix.os }}-jdk-${{ matrix.java }}
           path: |
-            build/flowlens.jar
-            build/workbench-preview.png
+            target/flowlens.jar
+            target/workbench-preview.png
           if-no-files-found: error
           retention-days: 14
