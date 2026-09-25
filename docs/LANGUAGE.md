@@ -87,8 +87,13 @@ Every method must explicitly return on every continuing path. A final top-level 
 | `W001` | Method name is not lowerCamelCase |
 | `W002` | Complexity above 7 or control nesting above 3 by default |
 | `W003` | Unreachable statement |
+| `W004` | Global or local variable is never read (opt-in: `--semantic-lint`) |
+| `W005` | Parameter is never read (opt-in) |
+| `W006` | Variable or parameter shadows a variable or parameter of an enclosing scope (opt-in) |
 
-Lexical failures stop the pipeline before parsing. Parser failures recover to collect additional syntax errors, then stop before semantics and metrics to avoid misleading reports about an incomplete tree. Semantically invalid but syntactically valid programs still receive metrics and lint results.
+Lexical failures stop the pipeline before parsing. Parser failures recover to collect additional syntax errors, then stop before semantics and metrics to avoid misleading reports about an incomplete tree. Semantically invalid but syntactically valid programs still receive metrics and the default lint results. The opt-in semantic warnings run only when there are no errors, to avoid secondary warnings about broken declarations.
+
+W004 and W005 use syntactic reads: an assignment alone is not a use, but a read anywhere counts, including in unreachable code. W006 reports a declaration only when the hidden variable or parameter is visible at that point. Globals are visible in every method, even globals declared later in the file; inside a method, a block local declared before an outer local of the same name does not shadow it. Methods live in a separate namespace, so a method never shadows or is shadowed by a variable. All three warnings point at the declared name.
 
 ## Metrics
 

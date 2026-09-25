@@ -39,9 +39,25 @@ java -jar target/flowlens.jar check examples/errors.sjava
 java -jar target/flowlens.jar check --format=json examples/errors.sjava
 java -jar target/flowlens.jar check --warnings-as-errors examples/lint.sjava
 java -jar target/flowlens.jar check --no-lint examples/valid.sjava examples/branching.sjava
+java -jar target/flowlens.jar check --semantic-lint examples/valid.sjava
 ```
 
 The errors example intentionally returns exit code **1**. Exit codes are **0** for valid source, **1** for source errors or a failed warning gate, and **2** for argument or file-access failures. A batch analyzes files independently and gives I/O failures precedence. `--warnings-as-errors` changes the exit status; warnings remain warnings in reports, and JSON `valid` still describes source validity.
+
+### Opt-in semantic lint
+
+`--semantic-lint` adds three warnings computed from resolved names rather than text: **W004** unused variable, **W005** unused parameter, and **W006** shadowing. They run only when the source has no errors, and `--no-lint` turns off all warnings regardless of flag order.
+
+```text
+$ java -jar target/flowlens.jar check --semantic-lint examples/valid.sjava
+PASS examples/valid.sjava
+  examples/valid.sjava:2:11  warning W004  Variable 'maxRetries' is never read.
+  examples/valid.sjava:15:21  warning W005  Parameter 'message' is never read.
+  examples/valid.sjava:15:37  warning W005  Parameter 'amount' is never read.
+  examples/valid.sjava:16:10  warning W004  Variable 'marker' is never read.
+```
+
+A write alone is not a use, and any resolved read counts, even in unreachable code. Dead stores and flow-sensitive usage are not analyzed. In the API, `Analyzer.withSemanticLint()` enables the same rules.
 
 `./mvnw verify` compiles with warnings as errors, runs the JUnit suite, packages `target/flowlens.jar`, runs the packaged JAR in an integration test, and enforces the JaCoCo coverage gate. The coverage report is written to `target/site/jacoco/index.html`. `./mvnw package -DskipTests` builds the JAR only, and `./mvnw clean` deletes `target/`.
 
@@ -52,12 +68,13 @@ The errors example intentionally returns exit code **1**. Exit codes are **0** f
 | Compiler front end | Tokenizer, recursive-descent parser, precedence, immutable AST, bounded recursion, statement recovery |
 | Semantic analysis | Forward calls, lexical scopes, shadowing, final variables, method signatures, centralized type rules |
 | Data-flow reasoning | Initialization sets keyed by declaration identity; copies and intersections at branches; isolated method state |
+| Semantic model | Immutable declarations, references, scopes, and expression types with offset queries; the basis for opt-in unused/shadowing lint |
 | Developer feedback | Multiple diagnostics with codes, severity, line, column and offset; text and versioned JSON reports |
 | Extensibility | Pluggable lint rules and report strategies; the core has no filesystem, console, or Swing dependencies |
 | Desktop demo | Source editor, four examples, background analysis, diagnostic navigation, metrics, source saving, JSON export |
-| Engineering discipline | Maven build; 113 JUnit 5 tests; JaCoCo coverage gate; warnings-as-errors compilation; seeded malformed-input checks; Windows/Linux and JDK 17/21 CI |
+| Engineering discipline | Maven build; 150 JUnit 5 tests; JaCoCo coverage gate; warnings-as-errors compilation; seeded malformed-input checks; Windows/Linux and JDK 17/21 CI |
 
-The default lint rules cover method naming, excessive complexity/nesting, and unreachable statements. Metrics report statement count, cyclomatic complexity, and maximum control nesting for each method.
+The default lint rules cover method naming, excessive complexity/nesting, and unreachable statements; unused variables, unused parameters, and shadowing are opt-in. Metrics report statement count, cyclomatic complexity, and maximum control nesting for each method.
 
 ## How branch analysis catches a bug
 

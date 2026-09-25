@@ -19,8 +19,14 @@ public final class Ast {
         public Program { globals = List.copyOf(globals); methods = List.copyOf(methods); }
         public <R> R accept(Visitor<R> v) { return v.visitProgram(this); }
     }
-    public record Method(String name, List<Parameter> parameters, Block body, SourcePosition position) implements Node {
+    /** {@code position} is the {@code void} keyword; {@code namePosition} is the method-name token. */
+    public record Method(String name, List<Parameter> parameters, Block body, SourcePosition position,
+                         SourcePosition namePosition) implements Node {
         public Method { parameters = List.copyOf(parameters); }
+        /** Compatibility constructor for callers without a separate name token. */
+        public Method(String name, List<Parameter> parameters, Block body, SourcePosition position) {
+            this(name, parameters, body, position, position);
+        }
         public <R> R accept(Visitor<R> v) { return v.visitMethod(this); }
     }
     public record Parameter(Type type, String name, boolean isFinal, SourcePosition position) { }

@@ -1,17 +1,20 @@
 $ ./mvnw -B -ntp clean verify
 # openjdk version "17.0.19" 2026-04-21; Apache Maven 3.9.16 (wrapper); Windows 11
 
-[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.206 s -- in dev.sjavainspector.api.AnalyzerTest
-[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.079 s -- in dev.sjavainspector.cli.CliTest
-[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.373 s -- in dev.sjavainspector.io.FileSourceRepositoryTest
-[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.024 s -- in dev.sjavainspector.lint.LintRulesTest
-[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in dev.sjavainspector.report.JsonReportFormatterTest
-[INFO] Tests run: 55, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.089 s -- in dev.sjavainspector.semantic.SemanticAnalyzerTest
-[INFO] Tests run: 35, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.070 s -- in dev.sjavainspector.syntax.FrontendTest
-[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.673 s -- in dev.sjavainspector.ui.WorkbenchPanelTest
-[INFO] Tests run: 112, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.225 s -- in dev.sjavainspector.api.AnalyzerTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.075 s -- in dev.sjavainspector.cli.CliTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.046 s -- in dev.sjavainspector.cli.SemanticLintCliTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.147 s -- in dev.sjavainspector.io.FileSourceRepositoryTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.031 s -- in dev.sjavainspector.lint.LintRulesTest
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.043 s -- in dev.sjavainspector.lint.SemanticLintTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.010 s -- in dev.sjavainspector.report.JsonReportFormatterTest
+[INFO] Tests run: 55, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.064 s -- in dev.sjavainspector.semantic.SemanticAnalyzerTest
+[INFO] Tests run: 21, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.091 s -- in dev.sjavainspector.semantic.SemanticModelTest
+[INFO] Tests run: 35, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.061 s -- in dev.sjavainspector.syntax.FrontendTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.675 s -- in dev.sjavainspector.ui.WorkbenchPanelTest
+[INFO] Tests run: 149, Failures: 0, Errors: 0, Skipped: 0
 [INFO] Building jar: target/flowlens.jar
-[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.694 s -- in dev.sjavainspector.cli.CliProcessIT
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.513 s -- in dev.sjavainspector.cli.CliProcessIT
 [INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
 [INFO] All coverage checks have been met.
 [INFO] BUILD SUCCESS
@@ -29,6 +32,12 @@ PASS CLI rejects malformed invocation
 PASS CLI end-of-options marker
 PASS CLI I/O failure takes precedence over source failure
 PASS CLI JSON is clean stdout
+# dev.sjavainspector.cli.SemanticLintCliTest
+PASS CLI --no-lint overrides --semantic-lint in either order
+PASS CLI --semantic-lint reports W004 and respects the warning gate
+PASS CLI semantic lint in JSON keeps schema v1
+PASS CLI semantic lint analyzes batch inputs independently
+PASS CLI default output has no semantic lint
 # dev.sjavainspector.io.FileSourceRepositoryTest
 PASS file adapter reads UTF-8 with optional BOM
 PASS file adapter rejects unsupported extension
@@ -40,6 +49,18 @@ PASS metrics count decisions, logical operators, statements and depth
 PASS complexity thresholds are configurable
 PASS unreachable warning after two returning branches
 PASS lint can be disabled without affecting validation
+# dev.sjavainspector.lint.SemanticLintTest
+PASS W006 is silent for siblings, later outer declarations, and method names
+PASS semantic lint is suppressed when the program has semantic errors
+PASS W005 reports parameters that are never read
+PASS W004 is silent when variables are read, including globals read in methods
+PASS W006 reports parameters and locals hiding globals declared anywhere in the file
+PASS reads in unreachable code count as use
+PASS custom semantic rule reads the model and configuration is copied
+PASS W004 reports unused local and global variables at the name
+PASS W006 reports a block local hiding a method local and names the hidden location
+PASS write-only variables are unused
+PASS default analyzer keeps semantic lint off; the factory adds it to default rules
 # dev.sjavainspector.report.JsonReportFormatterTest
 PASS JSON schema empty report golden output
 PASS JSON escapes quotes, slashes, controls and surrogates
@@ -99,6 +120,28 @@ PASS assignment to undeclared variable
 PASS global assignment in same method is visible
 PASS forward calls and recursion
 PASS final declaration needs initializer
+# dev.sjavainspector.semantic.SemanticModelTest
+PASS nested shadowing binds each read to the innermost visible declaration
+PASS offset queries find declarations and uses but not gaps
+PASS sibling scopes hold distinct declarations that do not shadow each other
+PASS duplicate method bodies are analyzed and their calls bind to the first definition
+PASS concurrent analyses build independent models
+PASS offsets and columns count UTF-16 units after supplementary characters
+PASS assignments record writes, including comma assignments
+PASS identifier ranges survive whitespace and comments
+PASS variables and methods have separate namespaces
+PASS forward calls and recursion bind to method symbols
+PASS parameters share the method scope and record reads and writes
+PASS unresolved names are retained without a target
+PASS comma declarations see earlier bindings only
+PASS symbol descriptions and source range validation
+PASS rejected duplicate variables and parameters never replace the accepted declaration
+PASS model collections are immutable
+PASS self-initialization is a read bound to the new declaration
+PASS an analyzer is single-use and the model has a short description
+PASS identifier ranges after CRLF line breaks
+PASS expression types are recorded by node identity
+PASS model is present after parsing and absent for input, lexical, parse and I/O failures
 # dev.sjavainspector.syntax.FrontendTest
 PASS block recursion guard
 PASS extra closing brace
@@ -142,5 +185,5 @@ PASS Swing analysis, diagnostic navigation, stale-result rejection and rendering
 # dev.sjavainspector.cli.CliProcessIT
 PASS real CLI process exit codes
 
-113 named tests executed.
-JaCoCo line coverage 755/817 = 92.4%; branch coverage 403/482 = 83.6%.
+150 named tests executed.
+JaCoCo line coverage 935/994 = 94.1%; branch coverage 461/540 = 85.4%.

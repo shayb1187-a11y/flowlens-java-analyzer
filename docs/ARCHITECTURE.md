@@ -13,13 +13,17 @@ flowchart TD
     AST --> Semantic[Semantic visitor]
     AST --> Metrics[Metrics visitor]
     AST --> Rules[AnalysisRule implementations]
+    Semantic --> Model[Immutable SemanticModel]
+    Model --> SemanticRules[SemanticRule implementations]
+    Model --> Result
+    SemanticRules --> Result
     Semantic --> Result[AnalysisResult]
     Metrics --> Result
     Rules --> Result
     Result --> Reports[Text and JSON strategies]
 ```
 
-`Analyzer` accepts a `SourceUnit` rather than a path. This prevents analysis from depending on storage, output streams, or a UI. It creates fresh scanners, parsers, visitors, and diagnostic lists for each call. Its only long-lived state is a defensively copied list of lint rules. The built-in rules have no mutable per-run state. Custom rules must honor the same thread-safety contract.
+`Analyzer` accepts a `SourceUnit` rather than a path. This prevents analysis from depending on storage, output streams, or a UI. It creates fresh scanners, parsers, visitors, and diagnostic lists for each call. Its only long-lived state is defensively copied lists of syntax and semantic lint rules. The built-in rules have no mutable per-run state. Custom rules must honor the same thread-safety contract.
 
 There is no dependency-injection framework: `Main` is the composition root, the CLI receives a source port through its constructor, and the facade receives lint strategies through its constructor. One `TypeRules` implementation is enough for this single dialect; it does not need an interface with only one useful implementation.
 
@@ -49,7 +53,7 @@ Why not put `validate()`, `measure()`, and `render()` on every node? That would 
 
 ## Scope and flow are different things
 
-`Scope` owns declarations and resolves names through parent scopes. `VariableSymbol` owns an immutable type, name, and final flag. Object identity distinguishes two declarations with the same name.
+`Scope` owns declarations and resolves names through parent scopes. `VariableSymbol` owns an immutable type, name, final flag, kind, and name range. Object identity distinguishes two declarations with the same name; symbols deliberately do not override `equals`.
 
 `FlowState` owns a set of definitely initialized symbols and a reachability flag. Assignment adds a fact to that set; it never replaces a declaration object or changes whether a name was declared locally. That prevents the original bug where assigning to a variable erased its declaration metadata.
 
@@ -68,6 +72,20 @@ flowchart TD
 Without an `else`, the unexecuted branch carries the incoming state. Assignments in a loop body are checked but do not become definite after the loop. Facts about branch-local declarations are removed when leaving their scope; assignments to enclosing declarations remain part of that branch's result.
 
 The analyzer checks unreachable source for semantic errors but emits a separate configurable warning for unreachable statements. It does not infer constant conditions or try to prove termination of loops.
+
+## The semantic model
+
+`SemanticAnalyzer.analyze` records facts as it resolves names, then freezes them into a `SemanticModel`:
+
+- **Symbols:** every global, local, parameter, and method declaration, with its owning scope, name range, type or parameter types, and final flag. A rejected duplicate stays in the model with `isAccepted() == false` but never enters its scope, so it cannot replace the accepted declaration.
+- **Scopes:** a global scope, one scope per method (shared by parameters and top-level locals), and one per block, linked by parent and child.
+- **References:** each identifier use as a `READ`, `WRITE`, or `CALL`, with its range, containing scope, and resolved symbol if there is one. In `int x = x;` the read binds to the new `x`, which is why it is reported as uninitialized.
+- **Shadowing:** when a declaration is accepted, resolving its name through the parent scopes at that moment records which variable it hides.
+- **Expression types:** the type the analyzer computed for each expression node, `ERROR` included, keyed by node identity.
+
+`FlowState` keys on the same `VariableSymbol` objects the model exposes, so definite assignment and the model cannot disagree about which declaration a name means. Lint rules implement `SemanticRule` and read bindings from the model; they never resolve names themselves.
+
+Ranges are half-open and measured in UTF-16 code units, matching `SourcePosition` offsets and columns. `symbolAt` and `referenceAt` binary-search a sorted index of name ranges. **Model identities belong to one source snapshot.** Symbols, scopes, and AST nodes are compared by identity, so after an edit the source must be analyzed again and old symbols must not be mixed with the new model. The model is built on every successful parse, including invalid programs, but not after input-limit, lexical, parse, or I/O failures.
 
 ## Two-stage semantic analysis
 
@@ -98,7 +116,16 @@ Analyzer analyzer = new Analyzer(List.of(
 AnalysisResult result = analyzer.analyze(new SourceUnit("demo.sjava", source));
 ```
 
-Imports are from `dev.sjavainspector.api`, `dev.sjavainspector.lint`, and `java.util.List`. Passing an empty rule list disables lint; semantic rules remain mandatory.
+Imports are from `dev.sjavainspector.api`, `dev.sjavainspector.lint`, and `java.util.List`. Passing an empty rule list disables lint; semantic validation itself remains mandatory.
+
+Rules that need resolved names implement `SemanticRule` and receive the frozen model. They are passed as a second list, `new Analyzer(syntaxRules, semanticRules)`, or taken from `Analyzer.withSemanticLint()`. Semantic rules run only when validation found no errors:
+
+```java
+SemanticRule tooManyGlobals = model -> model.globalScope().declarations().size() <= 20
+        ? List.of()
+        : List.of(Diagnostic.warning("TEAM002", "Prefer fewer globals.", model.program().position()));
+Analyzer analyzer = new Analyzer(Analyzer.defaultRules(), List.of(tooManyGlobals));
+```
 
 The rule list is **not Chain of Responsibility**: every rule runs, and no rule consumes a request or decides whether another rule receives it. The analysis stages are a pipeline, not a reason to label everything a design pattern. No Factory, Builder, Observer bus, or State pattern was added without a need. Swing listeners already handle UI events.
 
@@ -109,7 +136,7 @@ The rule list is **not Chain of Responsibility**: every rule runs, and no rule c
 | Single responsibility | Lexer owns tokenization; parser owns grammar; semantic visitor owns language meaning; formatters own serialization | The semantic visitor coordinates related checks; splitting each statement into a service would obscure flow |
 | Open/closed | Add lint rules and formatters by implementing small interfaces | New grammar constructs intentionally require edits to the compiler front end |
 | Liskov substitution | Either formatter can serialize the same results; repository adapters share an I/O contract | This does not mean every class needs a base class |
-| Interface segregation | Small `SourceRepository`, `ReportFormatter`, and `AnalysisRule` contracts | The complete visitor is deliberately larger because the language's node set is closed |
+| Interface segregation | Small `SourceRepository`, `ReportFormatter`, `AnalysisRule`, and `SemanticRule` contracts | The complete visitor is deliberately larger because the language's node set is closed |
 | Dependency inversion | CLI tests inject a source port; core analysis depends only on text and value objects | Composition roots are allowed to construct concrete implementations |
 
 ## Failures, limits, and threading

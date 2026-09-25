@@ -53,7 +53,7 @@ public final class Parser {
             } while (match(COMMA));
         }
         consume(RIGHT_PAREN, "Expected ')' after parameters.");
-        return new Ast.Method(name.text(), parameters, block(), start.position());
+        return new Ast.Method(name.text(), parameters, block(), start.position(), name.position());
     }
 
     private Ast.Block block() {

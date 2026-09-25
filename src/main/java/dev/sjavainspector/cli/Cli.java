@@ -24,7 +24,8 @@ public final class Cli {
               java -jar flowlens.jar gui
             Options:
               --format=text|json    Human-readable output or JSON schema v1 (default: text)
-              --no-lint             Disable style and maintainability warnings
+              --semantic-lint       Also warn about unused variables/parameters and shadowing (W004-W006)
+              --no-lint             Disable all warnings; overrides --semantic-lint
               --warnings-as-errors  Return exit code 1 when warnings are present
               --                    Treat remaining arguments as file paths
               --help                Show this help
@@ -38,6 +39,7 @@ public final class Cli {
         if (args.length == 1 && args[0].equals("--help")) { out.print(USAGE); out.flush(); return 0; }
         if (args.length == 0 || !args[0].equals("check")) return usageError("Expected the 'check' command.", err);
         boolean noLint = false;
+        boolean semanticLint = false;
         boolean warningsAsErrors = false;
         boolean positional = false;
         ReportFormatter formatter = new TextReportFormatter();
@@ -49,6 +51,7 @@ public final class Cli {
                 switch (arg) {
                     case "--" -> positional = true;
                     case "--no-lint" -> noLint = true;
+                    case "--semantic-lint" -> semanticLint = true;
                     case "--warnings-as-errors" -> warningsAsErrors = true;
                     case "--format=json" -> formatter = new JsonReportFormatter();
                     case "--format=text" -> formatter = new TextReportFormatter();
@@ -59,7 +62,7 @@ public final class Cli {
         } catch (InvalidPathException e) { return usageError("Invalid input path: " + e.getInput(), err); }
         if (paths.isEmpty()) return usageError("Provide at least one .sjava file.", err);
 
-        Analyzer analyzer = noLint ? new Analyzer(List.of()) : new Analyzer();
+        Analyzer analyzer = noLint ? new Analyzer(List.of()) : semanticLint ? Analyzer.withSemanticLint() : new Analyzer();
         List<AnalysisResult> results = new ArrayList<>();
         boolean ioFailure = false;
         for (Path path : paths) {
