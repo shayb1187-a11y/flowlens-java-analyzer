@@ -20,8 +20,8 @@ public final class Cli {
     private static final String USAGE = """
             FlowLens 1.0.1
             Usage:
-              java -jar build/flowlens.jar check [options] FILE.sjava [FILE.sjava ...]
-              java -jar build/flowlens.jar gui
+              java -jar flowlens.jar check [options] FILE.sjava [FILE.sjava ...]
+              java -jar flowlens.jar gui
             Options:
               --format=text|json    Human-readable output or JSON schema v1 (default: text)
               --no-lint             Disable style and maintainability warnings

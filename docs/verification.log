@@ -1,116 +1,146 @@
-PASS commas and equals inside quoted values
-PASS comment markers inside quoted literals
-PASS inline, indented, and multiline comments
-PASS escaped quote and backslash
-PASS unterminated string
-PASS unterminated comment
-PASS empty char rejected
-PASS multi-character char rejected
-PASS unknown escape rejected
-PASS numeric literal forms
-PASS malformed numeric literal
-PASS arithmetic is outside the language
-PASS single logical operator rejected
-PASS keyword cannot be variable name
-PASS single underscore rejected
-PASS double underscore prefix rejected
-PASS underscore plus digit accepted for variables
-PASS method must start with a letter
-PASS multiple statements per line
-PASS multiline declarations and calls
-PASS CRLF source positions
-PASS bare CR source positions
-PASS logical precedence and parentheses
-PASS trailing comma rejected
-PASS missing closing brace
-PASS extra closing brace
-PASS nested method rejected
-PASS global call rejected
-PASS global return rejected
-PASS syntax errors recover at statement boundaries
-PASS expression recursion guard
-PASS block recursion guard
-PASS source length guard
-PASS AST collections are immutable
-PASS 500 seeded malformed token streams never crash
-PASS empty input is valid
-PASS uninitialized declarations are allowed
-PASS boolean assignment establishes initialization
-PASS self initialization rejected
-PASS redeclare after assignment rejected
-PASS comma assignments processed left to right
-PASS multi declaration sees earlier initializer
-PASS multi declaration cannot read later binding
-PASS assignment to undeclared variable
-PASS use before initialization
-PASS final declaration needs initializer
-PASS final assignment forbidden
-PASS final assignment forbidden across scope
-PASS final parameter cannot be reassigned
-PASS parameters are initialized
-PASS duplicate parameters rejected
-PASS parameters share method scope
-PASS nested scope may shadow
-PASS shadow initializer resolves to own declaration
-PASS local cannot escape block
-PASS shadow assignments do not initialize outer
-PASS if without else does not definitely assign
-PASS loop may execute zero times
-PASS assignments visible within a branch
-PASS both branches establish assignment
-PASS one incomplete branch fails merge
-PASS returning branch excluded from merge
-PASS returning else excluded from merge
-PASS nested complete branches merge
-PASS existing assignment survives branch
-PASS global initialization isolated between methods
-PASS global assignment in same method is visible
-PASS global initialization completes before method analysis
-PASS globals initialized in source order
-PASS failed initializer does not initialize variable
-PASS forward calls and recursion
-PASS unknown method rejected
-PASS wrong argument count rejected
-PASS wrong argument type rejected
-PASS uninitialized call argument
-PASS duplicate methods rejected
-PASS type widening allowed
-PASS narrowing rejected
-PASS boolean cannot widen to number
-PASS char is distinct from String
-PASS numeric conditions allowed
-PASS String condition rejected
-PASS char condition rejected
-PASS logical operators validate both sides
-PASS missing return diagnosed
-PASS conditional return alone insufficient
-PASS both returning branches satisfy method
-PASS return in while alone insufficient
-PASS return cannot carry a value
-PASS multiple independent semantic errors
-PASS three built-in lint rules
-PASS lint can be disabled without affecting validation
-PASS custom rule plugs in without changing analyzer
-PASS complexity thresholds are configurable
-PASS metrics count decisions, logical operators, statements and depth
-PASS unreachable warning after two returning branches
-PASS result collections are immutable
+$ ./mvnw -B -ntp clean verify
+# openjdk version "17.0.19" 2026-04-21; Apache Maven 3.9.16 (wrapper); Windows 11
+
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.206 s -- in dev.sjavainspector.api.AnalyzerTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.079 s -- in dev.sjavainspector.cli.CliTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.373 s -- in dev.sjavainspector.io.FileSourceRepositoryTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.024 s -- in dev.sjavainspector.lint.LintRulesTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in dev.sjavainspector.report.JsonReportFormatterTest
+[INFO] Tests run: 55, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.089 s -- in dev.sjavainspector.semantic.SemanticAnalyzerTest
+[INFO] Tests run: 35, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.070 s -- in dev.sjavainspector.syntax.FrontendTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.673 s -- in dev.sjavainspector.ui.WorkbenchPanelTest
+[INFO] Tests run: 112, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Building jar: target/flowlens.jar
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.694 s -- in dev.sjavainspector.cli.CliProcessIT
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] All coverage checks have been met.
+[INFO] BUILD SUCCESS
+
+## surefire test cases
+# dev.sjavainspector.api.AnalyzerTest
 PASS same analyzer has no state leakage between runs
+PASS result collections are immutable
 PASS 100 concurrent analyses share one facade safely
 PASS core never writes to console
-PASS file adapter reads UTF-8 with optional BOM
-PASS file adapter rejects malformed UTF-8
-PASS file adapter rejects unsupported extension
-PASS CLI processes multiple files independently
-PASS CLI I/O failure takes precedence over source failure
+# dev.sjavainspector.cli.CliTest
 PASS CLI warnings gate and no-lint switch
+PASS CLI processes multiple files independently
 PASS CLI rejects malformed invocation
 PASS CLI end-of-options marker
+PASS CLI I/O failure takes precedence over source failure
+PASS CLI JSON is clean stdout
+# dev.sjavainspector.io.FileSourceRepositoryTest
+PASS file adapter reads UTF-8 with optional BOM
+PASS file adapter rejects unsupported extension
+PASS file adapter rejects malformed UTF-8
+# dev.sjavainspector.lint.LintRulesTest
+PASS custom rule plugs in without changing analyzer
+PASS three built-in lint rules
+PASS metrics count decisions, logical operators, statements and depth
+PASS complexity thresholds are configurable
+PASS unreachable warning after two returning branches
+PASS lint can be disabled without affecting validation
+# dev.sjavainspector.report.JsonReportFormatterTest
 PASS JSON schema empty report golden output
 PASS JSON escapes quotes, slashes, controls and surrogates
-PASS CLI JSON is clean stdout
-PASS real CLI process exit codes
+# dev.sjavainspector.semantic.SemanticAnalyzerTest
+PASS final parameter cannot be reassigned
+PASS failed initializer does not initialize variable
+PASS comma assignments processed left to right
+PASS loop may execute zero times
+PASS boolean cannot widen to number
+PASS globals initialized in source order
+PASS String condition rejected
+PASS boolean assignment establishes initialization
+PASS use before initialization
+PASS missing return diagnosed
+PASS return cannot carry a value
+PASS redeclare after assignment rejected
+PASS duplicate methods rejected
+PASS empty input is valid
+PASS wrong argument count rejected
+PASS nested complete branches merge
+PASS global initialization isolated between methods
+PASS return in while alone insufficient
+PASS if without else does not definitely assign
+PASS shadow initializer resolves to own declaration
+PASS char condition rejected
+PASS assignments visible within a branch
+PASS conditional return alone insufficient
+PASS parameters are initialized
+PASS type widening allowed
+PASS uninitialized declarations are allowed
+PASS final assignment forbidden across scope
+PASS parameters share method scope
+PASS duplicate parameters rejected
+PASS multiple independent semantic errors
+PASS multi declaration cannot read later binding
+PASS wrong argument type rejected
+PASS logical operators validate both sides
+PASS both branches establish assignment
+PASS local cannot escape block
+PASS uninitialized call argument
+PASS shadow assignments do not initialize outer
+PASS one incomplete branch fails merge
+PASS existing assignment survives branch
+PASS both returning branches satisfy method
+PASS global initialization completes before method analysis
+PASS numeric conditions allowed
+PASS nested scope may shadow
+PASS self initialization rejected
+PASS returning else excluded from merge
+PASS unknown method rejected
+PASS final assignment forbidden
+PASS char is distinct from String
+PASS multi declaration sees earlier initializer
+PASS narrowing rejected
+PASS returning branch excluded from merge
+PASS assignment to undeclared variable
+PASS global assignment in same method is visible
+PASS forward calls and recursion
+PASS final declaration needs initializer
+# dev.sjavainspector.syntax.FrontendTest
+PASS block recursion guard
+PASS extra closing brace
+PASS escaped quote and backslash
+PASS empty char rejected
+PASS CRLF source positions
+PASS syntax errors recover at statement boundaries
+PASS trailing comma rejected
+PASS source length guard
+PASS global call rejected
+PASS AST collections are immutable
+PASS global return rejected
+PASS bare CR source positions
+PASS multi-character char rejected
+PASS arithmetic is outside the language
+PASS inline, indented, and multiline comments
+PASS comment markers inside quoted literals
+PASS double underscore prefix rejected
+PASS underscore plus digit accepted for variables
+PASS missing closing brace
+PASS numeric literal forms
+PASS commas and equals inside quoted values
+PASS 500 seeded malformed token streams never crash
+PASS logical precedence and parentheses
+PASS unterminated comment
+PASS nested method rejected
+PASS malformed numeric literal
+PASS single underscore rejected
+PASS unknown escape rejected
+PASS keyword cannot be variable name
+PASS multiline declarations and calls
+PASS expression recursion guard
+PASS unterminated string
+PASS method must start with a letter
+PASS multiple statements per line
+PASS single logical operator rejected
+# dev.sjavainspector.ui.WorkbenchPanelTest
 PASS Swing analysis, diagnostic navigation, stale-result rejection and rendering
 
-113 tests passed; 0 failed.
-Built build/flowlens.jar
+## failsafe test cases
+# dev.sjavainspector.cli.CliProcessIT
+PASS real CLI process exit codes
+
+113 named tests executed.
+JaCoCo line coverage 755/817 = 92.4%; branch coverage 403/482 = 83.6%.

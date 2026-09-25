@@ -8,11 +8,11 @@ Use this description after you have read, run, and understood the implementation
 
 ## Five-minute demonstration
 
-1. **Show the product.** Run `java -jar build/flowlens.jar gui`. Analyze the default valid example. Explain that the program checks source without executing it.
+1. **Show the product.** Run `java -jar target/flowlens.jar gui`. Analyze the default valid example. Explain that the program checks source without executing it.
 2. **Find a real defect.** Load `errors.sjava`, analyze it, and select the first diagnostic. `retries` is assigned only if the branch executes. Add `else { retries = 1; }`, analyze again, and watch that diagnostic disappear while the others remain.
 3. **Show assignment identity.** Explain why `int self = self;` is invalid and why assigning a variable does not allow declaring it again. Open `Scope`, `VariableSymbol`, and `FlowState` if asked.
 4. **Show an extension seam.** Open `AnalysisRule`, `MethodNamingRule`, and the custom-rule example in `ARCHITECTURE.md`. A team rule can be added without modifying grammar or semantics.
-5. **Show automation.** Run `java Build.java test`, then `java -jar build/flowlens.jar check --format=json examples/errors.sjava`. Explain the actual process exit codes and the CI configuration.
+5. **Show automation.** Run `./mvnw verify`, then `java -jar target/flowlens.jar check --format=json examples/errors.sjava`. Explain the actual process exit codes, the JaCoCo coverage gate, and the CI configuration.
 
 The `errors.sjava` example also demonstrates final-variable reassignment, self-initialization, duplicate declarations, and unresolved calls. `branching.sjava` demonstrates both an intersection merge and exclusion of a returning path. `lint.sjava` demonstrates valid-but-hard-to-maintain source.
 
@@ -29,7 +29,7 @@ The `errors.sjava` example also demonstrates final-variable reassignment, self-i
 | Why interfaces for reports and sources? | Concrete alternatives exist: text/JSON output and file/in-memory input. They are useful substitution points |
 | Is this full Java? | No: name the supported types and control statements, and explicitly exclude expressions/calls/features the dialect does not implement |
 | Is it thread-safe? | The facade owns immutable configuration and creates fresh per-run state. Built-in rules are stateless; custom rules must honor that contract |
-| What did tests actually prove? | Cite the regression cases and integration checks. 113 named tests is not a coverage percentage or proof of correctness |
+| What did tests actually prove? | Cite the regression cases and integration checks. 113 named JUnit tests and 92% line coverage show which code executed, not that it is correct |
 
 ## Read the code in this order
 
@@ -46,14 +46,14 @@ Useful exercises: manually trace initialization sets through `branching.sjava`; 
 
 ## A possible CV bullet
 
-> Developed a Java static-analysis tool with an immutable AST, Visitor-based semantic analysis, flow-sensitive initialization checks, configurable lint rules, and CLI/Swing interfaces; validated behavior with 113 automated tests.
+> Developed a Java static-analysis tool with an immutable AST, Visitor-based semantic analysis, flow-sensitive initialization checks, configurable lint rules, and CLI/Swing interfaces; validated behavior with 113 JUnit 5 tests, a JaCoCo coverage gate, and cross-platform GitHub Actions CI.
 
-Only use features and wording you can comfortably explain. Do not list tools that are absent: this version does not use Spring, Maven, Gradle, JUnit, a database, or an LLM at runtime.
+Only use features and wording you can comfortably explain. Do not list tools that are absent: this version uses Maven, JUnit 5, and JaCoCo for the build, but does not use Spring, Gradle, a database, or an LLM at runtime.
 
 ## Repository and demo
 
 - Repository: [flowlens-java-analyzer](https://github.com/shayb1187-a11y/flowlens-java-analyzer).
-- Run `java Build.java test` from the repository root to compile, verify, and package the app.
+- Run `./mvnw verify` (Windows: `mvnw.cmd verify`) from the repository root to compile, test, package, and check coverage.
 - Download the executable JAR from [Releases](https://github.com/shayb1187-a11y/flowlens-java-analyzer/releases); generated build output stays out of source control.
 - Check [GitHub Actions](https://github.com/shayb1187-a11y/flowlens-java-analyzer/actions) for hosted verification results.
 - Use the repository link on a CV alongside the demonstration above.
@@ -62,6 +62,6 @@ No open-source license has been assigned to this repository.
 
 ## Sensible next improvements
 
-First use feedback from running the tool. If a concrete next feature is wanted, consider an AST outline view, a SARIF formatter, or migrating the existing checks to the test framework used by your target team. A larger language should add expression and control-flow features with a grammar change, documented semantics and targeted tests.
+First use feedback from running the tool. If a concrete next feature is wanted, consider an AST outline view, a SARIF formatter, or a SARIF upload step in CI. A larger language should add expression and control-flow features with a grammar change, documented semantics and targeted tests.
 
 A database, web service, dependency-injection framework, or additional design pattern would not improve this project by itself. The strongest discussion is why the current boundaries solve actual problems.

@@ -2,6 +2,8 @@
 
 [![Java verification](https://github.com/shayb1187-a11y/flowlens-java-analyzer/actions/workflows/ci.yml/badge.svg)](https://github.com/shayb1187-a11y/flowlens-java-analyzer/actions/workflows/ci.yml)
 ![Java 17+](https://img.shields.io/badge/Java-17%2B-blue)
+![Build: Maven](https://img.shields.io/badge/build-Maven-C71A36)
+![Tests: JUnit 5](https://img.shields.io/badge/tests-JUnit_5-25A162)
 ![Runtime dependencies: zero](https://img.shields.io/badge/runtime_dependencies-zero-brightgreen)
 
 **Catch type, scope, and initialization errors before running code.** FlowLens is a static analyzer written in Java 17 for s-Java, a deliberately limited Java-like language. A shared analysis engine powers a command-line interface and a Swing desktop workbench, with source-linked diagnostics, JSON reports, and code-quality metrics.
@@ -14,13 +16,13 @@ The core engineering challenge is **definite assignment across branches**: a var
 
 ## Run it
 
-Install a **JDK 17 or later**, clone the repository, and run the commands below. The build uses only the JDK and has no third-party dependencies.
+Install a **JDK 17 or later**, clone the repository, and run the commands below. The Maven Wrapper downloads the pinned Maven version on first use, so Maven itself does not need to be installed. The application has no runtime dependencies; JUnit is test-scoped.
 
 ```sh
 git clone https://github.com/shayb1187-a11y/flowlens-java-analyzer.git
 cd flowlens-java-analyzer
-java Build.java test
-java -jar build/flowlens.jar gui
+./mvnw verify          # Windows: mvnw.cmd verify
+java -jar target/flowlens.jar gui
 ```
 
 To try the desktop demo without compiling, download `flowlens.jar` from the [latest release](https://github.com/shayb1187-a11y/flowlens-java-analyzer/releases/latest), then run it with Java 17 or later:
@@ -32,16 +34,16 @@ java -jar flowlens.jar gui
 A graphical desktop is required for `gui`. A headless server can run the CLI:
 
 ```sh
-java -jar build/flowlens.jar check examples/valid.sjava
-java -jar build/flowlens.jar check examples/errors.sjava
-java -jar build/flowlens.jar check --format=json examples/errors.sjava
-java -jar build/flowlens.jar check --warnings-as-errors examples/lint.sjava
-java -jar build/flowlens.jar check --no-lint examples/valid.sjava examples/branching.sjava
+java -jar target/flowlens.jar check examples/valid.sjava
+java -jar target/flowlens.jar check examples/errors.sjava
+java -jar target/flowlens.jar check --format=json examples/errors.sjava
+java -jar target/flowlens.jar check --warnings-as-errors examples/lint.sjava
+java -jar target/flowlens.jar check --no-lint examples/valid.sjava examples/branching.sjava
 ```
 
 The errors example intentionally returns exit code **1**. Exit codes are **0** for valid source, **1** for source errors or a failed warning gate, and **2** for argument or file-access failures. A batch analyzes files independently and gives I/O failures precedence. `--warnings-as-errors` changes the exit status; warnings remain warnings in reports, and JSON `valid` still describes source validity.
 
-`java Build.java build` compiles and packages without running tests. `java Build.java clean` deletes generated build output. Each build first cleans `build/` and produces `build/flowlens.jar`.
+`./mvnw verify` compiles with warnings as errors, runs the JUnit suite, packages `target/flowlens.jar`, runs the packaged JAR in an integration test, and enforces the JaCoCo coverage gate. The coverage report is written to `target/site/jacoco/index.html`. `./mvnw package -DskipTests` builds the JAR only, and `./mvnw clean` deletes `target/`.
 
 ## What it demonstrates
 
@@ -53,7 +55,7 @@ The errors example intentionally returns exit code **1**. Exit codes are **0** f
 | Developer feedback | Multiple diagnostics with codes, severity, line, column and offset; text and versioned JSON reports |
 | Extensibility | Pluggable lint rules and report strategies; the core has no filesystem, console, or Swing dependencies |
 | Desktop demo | Source editor, four examples, background analysis, diagnostic navigation, metrics, source saving, JSON export |
-| Engineering discipline | 113 automated tests; warnings-as-errors compilation; seeded malformed-input checks; Windows/Linux and JDK 17/21 CI |
+| Engineering discipline | Maven build; 113 JUnit 5 tests; JaCoCo coverage gate; warnings-as-errors compilation; seeded malformed-input checks; Windows/Linux and JDK 17/21 CI |
 
 The default lint rules cover method naming, excessive complexity/nesting, and unreachable statements. Metrics report statement count, cyclomatic complexity, and maximum control nesting for each method.
 
@@ -95,7 +97,7 @@ See [architecture and design decisions](docs/ARCHITECTURE.md) for diagrams and e
 - `semantic/`: type checking, name resolution, scope ownership, and flow state.
 - `lint/`: measurements and independent warning rules.
 - `io/`, `report/`, `cli/`, `ui/`: adapters and application entry points.
-- `src/test/java/`: front-end, semantic, integration, concurrency, and desktop tests.
+- `src/test/java/`: JUnit 5 tests mirroring the main packages: front-end, semantic, lint, CLI, reporting, concurrency, and desktop. `*IT` classes run against the packaged JAR.
 - `examples/`: runnable demo inputs.
 - `docs/`: [language specification](docs/LANGUAGE.md), [original-code review](docs/REVIEW.md), [verification record](docs/TESTING.md), and [portfolio/interview guide](docs/PORTFOLIO.md).
 
