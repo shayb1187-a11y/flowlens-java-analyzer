@@ -29,7 +29,7 @@ The `errors.sjava` example also demonstrates final-variable reassignment, self-i
 | Why interfaces for reports and sources? | Concrete alternatives exist: text/JSON output and file/in-memory input. They are useful substitution points |
 | Is this full Java? | No: name the supported types and control statements, and explicitly exclude expressions/calls/features the dialect does not implement |
 | Is it thread-safe? | The facade owns immutable configuration and creates fresh per-run state. Built-in rules are stateless; custom rules must honor that contract |
-| What did tests actually prove? | Cite the regression cases and integration checks. 113 named JUnit tests and 92% line coverage show which code executed, not that it is correct |
+| What did tests actually prove? | Cite the regression cases and integration checks. 150 named JUnit tests and 94% line coverage show which code executed, not that it is correct |
 
 ## Read the code in this order
 
@@ -46,7 +46,7 @@ Useful exercises: manually trace initialization sets through `branching.sjava`; 
 
 ## A possible CV bullet
 
-> Developed a Java static-analysis tool with an immutable AST, Visitor-based semantic analysis, flow-sensitive initialization checks, configurable lint rules, and CLI/Swing interfaces; validated behavior with 113 JUnit 5 tests, a JaCoCo coverage gate, and cross-platform GitHub Actions CI.
+> Developed a Java static-analysis tool with an immutable AST, Visitor-based semantic analysis, flow-sensitive initialization checks, configurable lint rules, an immutable semantic model with opt-in unused/shadowing checks, and CLI/Swing interfaces; validated behavior with 150 JUnit 5 tests, a JaCoCo coverage gate, and cross-platform GitHub Actions CI.
 
 Only use features and wording you can comfortably explain. Do not list tools that are absent: this version uses Maven, JUnit 5, and JaCoCo for the build, but does not use Spring, Gradle, a database, or an LLM at runtime.
 
